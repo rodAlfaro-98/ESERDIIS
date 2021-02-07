@@ -1,9 +1,10 @@
-function desplegar() {
-    var x = document.getElementById("place");
+function desplegar(elemento,lugar) {
+  var x = document.getElementById(lugar);
+  if(elemento.value == "yes"){
+    x.style.display = "block";
+  }
+  if(elemento.value == "no"){
+    x.style.display = "none"
+  }
 
-    if (x.style.display == "none" ) {
-      x.style.display = "block";
-    } else {
-      x.style.display = "none";
-    }
 }

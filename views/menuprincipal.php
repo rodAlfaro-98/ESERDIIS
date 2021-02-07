@@ -121,27 +121,27 @@
                                             <div class="form-group">
                                                 <h3>El paciente ¿Presenta fiebre?</h3>
                                                 <div class="form-check">
-                                                    <input class="form-check-input radium-b" type="radio" name="fiebre" id="fiebresi" value="yes">
+                                                    <input class="form-check-input radium-b" type="radio" name="fiebre" id="fiebresi" value="yes" onclick="desplegar(this,'place')">
                                                     <label class="form-check-label"  for="fiebresi">
                                                     Sí
                                                     </label>
-                                                        <div class="place">
-                                                            <div class="form-check">
-                                                                <input class="form-check-input" type="radio" name="fiebreC" id="fiebremenos">
-                                                                <label class="form-check-label" for="fiebremenos">
-                                                                38°
-                                                                </label>
-                                                            </div>
-                                                            <div class="form-check">
-                                                                <input class="form-check-input" type="radio" name="fiebreC" id="fiebremas">
-                                                                <label class="form-check-label" for="fiebremas">
-                                                                39°
-                                                                </label>
-                                                            </div>
+                                                    <div id="place" style="display: none;">
+                                                        <div class="form-check">
+                                                            <input class="form-check-input" type="radio" name="fiebreC" id="fiebremenos">
+                                                            <label class="form-check-label" for="fiebremenos">
+                                                            38°
+                                                            </label>
                                                         </div>
+                                                        <div class="form-check">
+                                                            <input class="form-check-input" type="radio" name="fiebreC" id="fiebremas">
+                                                            <label class="form-check-label" for="fiebremas">
+                                                            39°
+                                                            </label>
+                                                        </div>
+                                                    </div>
                                                 </div>
                                                 <div class="form-check">
-                                                    <input class="form-check-input" type="radio" name="fiebre" id="fiebreno">
+                                                    <input class="form-check-input" type="radio" name="fiebre" id="fiebreno" value="no" onclick="desplegar(this,'place')">
                                                     <label class="form-check-label" for="fiebreno">
                                                     No
                                                     </label>
@@ -149,10 +149,11 @@
                                             <div class="form-group">
                                                 <h3>El paciente ¿Presenta dolor de cabeza?</h3>
                                                 <div class="form-check">
-                                                    <input class="form-check-input" type="radio" name="cabeza" id="cabezasi">
+                                                    <input class="form-check-input" type="radio" name="cabeza" id="cabezasi" value="yes" onclick="desplegar(this,'place1')">
                                                     <label class="form-check-label" for="cabezasi">
                                                     Sí
                                                     </label>
+                                                    <div id="place1" style="display: none;">
                                                         <div class="form-check">
                                                             <input class="form-check-input" type="radio" name="fiebreC" id="fiebremenos">
                                                             <label class="form-check-label" for="fiebremenos">
@@ -165,9 +166,10 @@
                                                              Intenso
                                                             </label>
                                                         </div>
+                                                    </div>
                                                 </div>
                                                 <div class="form-check">
-                                                    <input class="form-check-input" type="radio" name="cabeza" id="cabezano">
+                                                    <input class="form-check-input" type="radio" name="cabeza" id="cabezano" value="no" onclick="desplegar(this,'place1')">
                                                     <label class="form-check-label" for="cabezano">
                                                     No
                                                     </label>
@@ -175,10 +177,11 @@
                                             <div class="form-group">
                                                 <h3>El paciente ¿Presenta dificultad para respirar?</h3>
                                                 <div class="form-check">
-                                                    <input class="form-check-input" type="radio" name="respirar" id="respirarsi">
+                                                    <input class="form-check-input" type="radio" name="respirar" id="respirarsi" value="yes" onclick="desplegar(this,'place2')">
                                                     <label class="form-check-label" for="respirarsi">
                                                     Sí
                                                     </label>
+                                                    <div id="place2" style="display: none;">
                                                         <div class="form-check">
                                                             <input class="form-check-input" type="radio" name="respirar" id="respirarmenos">
                                                             <label class="form-check-label" for="respirarmenos">
@@ -191,9 +194,10 @@
                                                              Intenso
                                                             </label>
                                                         </div>
+                                                    </div>
                                                 </div>
                                                 <div class="form-check">
-                                                    <input class="form-check-input" type="radio" name="respirar" id="respirarno">
+                                                    <input class="form-check-input" type="radio" name="respirar" id="respirarno" value="no" onclick="desplegar(this,'place2')">
                                                     <label class="form-check-label" for="respirarno">
                                                     No
                                                     </label>
