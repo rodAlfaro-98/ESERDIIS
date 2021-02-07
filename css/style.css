@@ -2866,7 +2866,7 @@ select.form-control:not([size]):not([multiple]) {
   background: none repeat scroll 0 0 #ED5565;
   box-shadow: none;
 }
-/* UI Sortable */
+/* UI Sormiable */
 .ui-sortable .ibox-title {
   cursor: move;
 }
@@ -5742,7 +5742,7 @@ body.mini-navbar.fixed-sidebar .logo-element {
 }
 /* ERROR & LOGIN & LOCKSCREEN*/
 .middle-box {
-  max-width: 400px;
+  max-width: 600px;
   z-index: 100;
   margin: 0 auto;
   padding-top: 40px;
@@ -5752,7 +5752,7 @@ body.mini-navbar.fixed-sidebar .logo-element {
   padding-top: 110px;
 }
 .loginscreen.middle-box {
-  width: 300px;
+  width: 500px;
 }
 .loginColumns {
   max-width: 800px;
@@ -5766,13 +5766,13 @@ body.mini-navbar.fixed-sidebar .logo-element {
 }
 .logo-name {
   color: #e6e6e6;
-  font-size: 180px;
-  font-weight: 800;
+  font-size: 150px;
+  font-weight: 550;
   letter-spacing: -10px;
   margin-bottom: 0;
 }
 .middle-box h1 {
-  font-size: 170px;
+  font-size: 175px;
 }
 .wrapper .middle-box {
   margin-top: 140px;
