@@ -15,7 +15,7 @@ class Database extends mysqli {
 	private $_password = 'q203OYj-wAb+';
 	private $_database = 'cloudapp_fi';
 	private $_port = '3306';
-	/*
+	/*g
 	Get an instance of the Database
 	@return Instance
 	*/

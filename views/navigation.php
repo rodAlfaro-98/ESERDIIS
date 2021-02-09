@@ -1,5 +1,9 @@
 <?php
     session_start();
+
+    if(!isset($_SESSION["loggedin"])){
+        header("location: ../index.php");
+    }
 ?>
 
 <nav class="navbar-default navbar-static-side" role="navigation">
@@ -35,9 +39,15 @@
                     echo "<li>";
                         echo "<a href='menuprincipal.php'><i class='fa fa-pencil-square-o'></i> <span class='nav-label'>Registro</span></a>";
                     echo "</li>";
+                    echo "<li>";
+                        echo "<a href='./logOut.php'><i class='fa fa-sign-out'></i> <span class='nav-label'>Log Out</span></a>";
+                    echo "</li>";
                 }else if($_SESSION["perfil"] == 2){
                     echo "<li>";
                         echo "<a href='reportes.php'><i class='fa fa-clipboard'></i> <span class='nav-label'>Reportes</span></a>";
+                    echo "</li>";
+                    echo "<li>";
+                        echo "<a href='./logOut.php'><i class='fa fa-sign-out'></i> <span class='nav-label'>Log Out</span></a>";
                     echo "</li>";
                 }else if($_SESSION["perfil"] == "ambos"){
                     echo "<li>";
@@ -45,6 +55,9 @@
                     echo "</li>";
                     echo "<li>";
                         echo "<a href='reportes.php'><i class='fa fa-clipboard'></i> <span class='nav-label'>Reportes</span></a>";
+                    echo "</li>";
+                    echo "<li>";
+                        echo "<a href='./logOut.php'><i class='fa fa-sign-out'></i> <span class='nav-label'>Log Out</span></a>";
                     echo "</li>";
                 }
                 ?>

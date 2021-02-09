@@ -79,7 +79,7 @@ try{
                     // Redirect user to welcome page
 
                     
-                    if($num_rows == 2){
+                    if($num_rows >= 2){
                         $_SESSION["perfil"]="ambos";
                         echo $num_rows++;
                         header("location: views/menuprincipal.php");
@@ -88,7 +88,7 @@ try{
                         $_SESSION["perfil"] = 1;
                         header("location: views/menuprincipal.php");
                         echo $num_rows++;
-                    } else if($resultado["fkPerfiles"] >= 2){
+                    } else if($resultado["fkPerfiles"] == 2){
                         $_SESSION["perfil"] = 2;
                         header("location: views/reportes.php");
                     }
@@ -131,13 +131,13 @@ try{
     <div>
         <?php
             if(!empty($correo_erroneo)){
-                echo "<h4>$correo_erroneo</h4>";
+                echo '<script>alert("'.$correo_erroneo.'")</script>'; 
                 $correo_erroneo='';
             }else if(!empty($rfc_erroneo)){
-                echo "<h4>$rfc_erroneo</h4>";
+                echo '<script>alert("'.$rfc_erroneo.'")</script>'; 
                 $rfc_erroneo='';
             }else if(!empty($database_exception)){
-                echo "<h4>$database_exception</h4>";
+                echo '<script>alert("'.$database_exception.'")</script>'; 
                 $database_exception='';
             }
         ?>
