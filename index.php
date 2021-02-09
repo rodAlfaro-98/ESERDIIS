@@ -88,8 +88,9 @@ try{
                         $_SESSION["perfil"] = 1;
                         header("location: views/menuprincipal.php");
                         echo $num_rows++;
-                    } else if($resultado["fkPerfiles"] == 2){
+                    } else if($resultado["fkPerfiles"] >= 2){
                         $_SESSION["perfil"] = 2;
+                        header("location: views/reportes.php");
                     }
 
                 }
