@@ -162,12 +162,12 @@
                                         <b>Género</b>
                                     </label>
                                 <div class:"row">    
-                                    <div id="opt" style="display: block;">
+                                    <div id="opt" style="display: none;">
                                         <table>
                                             <tr>
                                                 <td>
                                                     <div class="form-check">
-                                                        <input class="form-check-input" type="radio" name="genero" id="hombre" value="H">
+                                                        <input class="form-check-input" type="radio" name="genero" id="hombre" value="H" onclick="buscar(this)">
                                                         <label class="form-check-label" for="hombre">
                                                             Hombre
                                                         </label>
@@ -175,7 +175,7 @@
                                                 </td>
                                                 <td>
                                                     <div class="form-check">
-                                                        <input class="form-check-input" type="radio" name="genero" id="mujer" value="M">
+                                                        <input class="form-check-input" type="radio" name="genero" id="mujer" value="M" onclick="buscar(this)">
                                                         <label class="form-check-label" for="mujer">
                                                             Mujer
                                                         </label>
@@ -183,7 +183,7 @@
                                                 </td>
                                                 <td>
                                                     <div class="form-check">
-                                                        <input class="form-check-input" type="radio" name="genero" id="otro" value="O">
+                                                        <input class="form-check-input" type="radio" name="genero" id="otro" value="O" onclick="buscar(this)">
                                                         <label class="form-check-label" for="otro">
                                                             Otro
                                                         </label>
@@ -194,7 +194,7 @@
                                             <tr>
                                                 <td>
                                                     <div class="form-check">
-                                                        <input class="form-check-input" type="radio" name="edad" id="edad1" value="0">
+                                                        <input class="form-check-input" type="radio" name="edad" id="edad1" value="0" onclick="buscar(this)">
                                                         <label class="form-check-label" for="edad1">
                                                             Menor a 18 años
                                                         </label>
@@ -203,7 +203,7 @@
                                                 </td>
                                                 <td>
                                                     <div class="form-check">
-                                                        <input class="form-check-input" type="radio" name="edad" id="edad2" value="1">
+                                                        <input class="form-check-input" type="radio" name="edad" id="edad2" value="1" onclick="buscar(this)">
                                                         <label class="form-check-label" for="edad2">
                                                             Adultos
                                                         </label>
@@ -212,7 +212,7 @@
                                                 </td>
                                                 <td>
                                                     <div class="form-check">
-                                                        <input class="form-check-input" type="radio" name="edad" id="edad3" value="2">
+                                                        <input class="form-check-input" type="radio" name="edad" id="edad3" value="2" onclick="buscar(this)">
                                                         <label class="form-check-label" for="edad3">
                                                             Tercera edad
                                                         </label>
@@ -231,12 +231,12 @@
                                         <b>Consulta</b>
                                     </label>
                                 <div class:"row">   
-                                    <div id="opt1" style="display: block;">
+                                    <div id="opt1" style="display: none;">
                                         <table>
                                             <tr>
                                                 <td>
                                                     <div class="form-check">
-                                                        <input class="form-check-input" type="radio" name="consulta" id="urgencias" value="urgencias">
+                                                        <input class="form-check-input" type="radio" name="consulta" id="urgencias" value="urgencias" onclick="buscar(this)">
                                                         <label class="form-check-label" for="urgencias">
                                                             Urgencias
                                                         </label>
@@ -244,7 +244,7 @@
                                                 </td>
                                                 <td>
                                                     <div class="form-check">
-                                                        <input class="form-check-input" type="radio" name="consulta" id="externa" value="consulta externa">
+                                                        <input class="form-check-input" type="radio" name="consulta" id="externa" value="consulta externa" onclick="buscar(this)">
                                                         <label class="form-check-label" for="consulta externa">
                                                             Consulta Externa
                                                         </label>
@@ -256,7 +256,7 @@
                                 </div>
                             </td>
                             <td>
-                            <div id="bton" style="display: block;">
+                            <div id="bton" style="display: none;">
                                 <button type="submit" class="btn btn-primary block full-width m-b">Buscar</button>
                             </div>
                             </td>
