@@ -1,41 +1,47 @@
 <?php
     
+    //Indicamos que requerimos la clase de la base de datos
     require ("../libs/Database.php");
-
+    session_start();
     $tipo_consulta='';
     $preguntas = 0;
     $ingreso = 'Error al ingresar datos';
     $error = '';
+    //Vemos si hemos recibido un metodo post al darle clic en enviar
     if($_SERVER["REQUEST_METHOD"] == "POST"){
+        //Si el paciente tiene problemas para respirar directo a urgencias
         if(((int) trim($_POST["respirar"])) == 1){
             $tipo_consulta='El paciente debe de ir a urgencias';
             $preguntas = 14;
         }
         else{
+            //Sumamos los valores de cada uno de los radio buttons que no corresponden a la intensidad (enviados en método post con el indice del valor name del radio button)
             $preguntas = ((int) trim($_POST["fiebre"])) + ((int) trim($_POST["cabeza"])) + ((int) trim($_POST["respirar"])) + ((int) trim($_POST["hueso"])) + ((int) trim($_POST["cansancio"])) + ((int) trim($_POST["flujo"])) + ((int) trim($_POST["alergia"]));
-            if(isset($_POST["fiebreC"])){
+            //Checamos la existencia de la seleccion de los radio buttons de intensidad y que se haya seleccionado el radio button que indica la presencia del malestar y sumamos valores
+            if(isset($_POST["fiebreC"]) && $_POST["fiebre"] != "0"){
                 $preguntas += ((int) trim($_POST["fiebreC"]));
             }
-            if(isset($_POST["cabezaC"])){
+            if(isset($_POST["cabezaC"]) && $_POST["cabeza"] != "0"){
                 $preguntas += ((int) trim($_POST["cabezaC"]));
             }
-            if(isset($_POST["respirarC"])){
+            if(isset($_POST["respirarC"]) && $_POST["respirar"] != "0"){
                 $preguntas += ((int) trim($_POST["respirarC"]));
             }
-            if(isset($_POST["huesoC"])){
+            if(isset($_POST["huesoC"]) && $_POST["hueso"] != "0"){
                 $preguntas += ((int) trim($_POST["huesoC"]));
             }
-            if(isset($_POST["cansancioC"])){
+            if(isset($_POST["cansancioC"]) && $_POST["cansancio"] != "0"){
                 $preguntas += ((int) trim($_POST["cansancioC"]));
             }
-            if(isset($_POST["flujoC"])){
+            if(isset($_POST["flujoC"]) && $_POST["flujo"] != "0"){
                 $preguntas += ((int) trim($_POST["flujoC"]));
             }
-            if(isset($_POST["alergiaC"])){
+            if(isset($_POST["alergiaC"]) && $_POST["alergia"] != "0"){
                 $preguntas += ((int) trim($_POST["alergiaC"]));
             }
         }
 
+        //Checamos la suma de las respuestas para ver donde enviarlo
         if($preguntas >= 14){
             $tipo_consulta='urgencias';
         }
@@ -47,25 +53,27 @@
             $ingreso = 'El paciente no debe de ser ingresado';
         }
 
+        // Si el paciente muestra enfermedad procedemos a ingresarlo
         if($preguntas >= 7){
             try{
-
+                // Creamos instancia del objeto Database y obtenemos su conexion
                 $instancia = Database::getInstance();
                 $conexion = $instancia->getConnection();
 
-                    //CREATE TABLE usuarios (pkUsuarios INT NOT NULL AUTO_INCREMENT PRIMARY KEY, nombre VARCHAR(40), fecha_nacimiento DATE, direccion_calle VARCHAR(80), telefono VARCHAR(12), ocupacion VARCHAR(40), genero VARCHAR(1), estado_civil VARCHAR(20), fkEstado INT NOT NULL, fkMunicipio INT NOT NULL, RFC VARCHAR(15), correo VARCHAR(50), FOREIGN KEY (fkEstado) REFERENCES estados(pkEstado), FOREIGN KEY (fkMunicipio) REFERENCES municipios (pkMunicipio));
+                // Creamos el query de insercion de los datos demograficos del usuario con comodines para las variables
                 $sql = "INSERT INTO usuarios (nombre, fecha_nacimiento, direccion_calle, telefono, ocupacion, genero, estado_civil, fkEstado, fkMunicipio, correo, RFC) values(?,?,?,?,?,?,?,?,?,?,?)";
+                // Preparamos la statement para el ingreso de datos
                 $stmt = $conexion->prepare($sql);
-                //$preparado=$stmt;
-                //echo "<h4>$preparado</h4>";
-                //if($preparado){
+                // Creamos variables de tipo int (bind_param no permite el casteo como parametro)
                 $fkEstado = (int) $_POST["estado"];
                 $fkMunicipio = (int) $_POST["municipio"];
+                //Agregamos todas las variables del usuario y ejecutamos
                 $stmt->bind_param("sssssssiiss",$_POST["name"],$_POST["fecha"],$_POST["direccion"],$_POST["telefono"],$_POST["ocupacion"],$_POST["genero"],$_POST["civil"],$fkEstado,$fkMunicipio,$_POST["email"],$_POST["rfc"]);
                 $exito=$stmt->execute();
 
-                //echo "<h4>$exito</h4>";
+                //En caso de haber ingresado
                 if($exito){
+                    //Obtenemos los datos del usuario recien ingresado
                     $sql = "SELECT pkUsuarios FROM usuarios WHERE nombre = ?";
                     $stmt = $conexion->prepare($sql);
                     $stmt->bind_param("s",$_POST["name"]);
@@ -74,81 +82,92 @@
 
                     $resultado = array();
 
+                    //Obtenemos las filas resultantes del query
                     while($row = $usuario -> fetch_assoc()){
+                        //Iteramos las filas con la tupla (columna, valor)
                         foreach($row as $cname => $cvalue){
-                            //print "$cname: $cvalue\t";
+                            //Guardamos en arreglo
                             $resultado[$cname] = $cvalue;
                         }
                     }
 
+                    // Creamos el perfil del usuario creado con la llave primaria del usuario (perfil tipo 3 es de pacientes)
                     $sql = "INSERT INTO perfilesUsuarios (fkUsuarios,fkPerfiles) values(?,3)";
+                    //Preparamos, agregamos la variable de la llave del usuario y ejecutamos el statement
                     $stmt = $conexion->prepare($sql);
                     $stmt->bind_param("i",$resultado["pkUsuarios"]);
                     $exito = $stmt->execute();
 
-                    //echo "<h4>$exito</h4>";
-
-                    //if($exito){
-                    //CREATE TABLE formulario (fiebre INT DEFAULT 0, intensidad_fiebre INT NOT NULL DEFAULT 0, dolor_de_cabeza INT NOT NULL DEFAULT 0, dolor_de_cabeza_intensidad, dificultad_respirar, dificultad_respirar_intensidad, dolor_huesos INT NOT NULL DEFAULT 0, dolor_huesos_intensidad INT NOT NULL DEFAULT 0, cansancio INT NOT NULL DEFAULT 0, cansancio_intensidad INT NOT NULL DEFAULT 0, flujo_nasal INT NOT NULL DEFAULT 0, flujo_nasal_intensidad INT NOT NULL DEFAULT 0, alergias INT NOT NULL DEFAULT 0, alergias_tipo VARCHAR(12) NOT NULL DEFAULT '', fkUsuarios INT NOT NULL, fecha dateTime, tipoPaciente bool, FOREIGN KEY(fkUsuarios) REFERENCES usuarios (pkUsuarios));
+                    //Creamos el query para ingreso de datos del formulario
                     $sql = "INSERT INTO formulario (fiebre, intensidad_fiebre, dolor_de_cabeza, dolor_de_cabeza_intensidad, dificultad_respirar, dificultad_respirar_intensidad, dolor_huesos, dolor_huesos_intensidad, cansancio, cansancio_intensidad, flujo_nasal, flujo_nasal_intensidad, alergias, alergias_tipo, fkUsuarios, fecha, tipoPaciente, tipo_consulta) values(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)";
                     $stmt = $conexion->prepare($sql);
                     $tipo_alergia = "";
 
-                    if(isset($_POST["alergiaC"])){
+                    // Checamos que se haya seleccionado una cantidad de alergia y que se haya afirmado la presencia de alergias para elegir su tipo
+                    if(isset($_POST["alergiaC"]) && $_POST["alergia"] != "0"){
                         if((int) $_POST["alergiaC"] == 1){
                             $tipo_alergia = "Alimentos";
                         }else{
                             $tipo_alergia = "Medicamentos";
                         }
                     }
+                    //Obtenemos la fecha de hoy en formato YYYY-MM-DD
                     $current_date = date("Y-m-d H:i:s");
+                    //Obtenemos la variable fiebre y checamos si existe la variable cantidad de fiebre en el contexto adecuado
                     $fiebre = ((int) $_POST["fiebre"]);
                     $fiebreC = 0;
-                    if(isset($_POST["fiebreC"])){
+                    if(isset($_POST["fiebreC"]) && $_POST["fiebre"] != "0"){
                         $fiebreC = ((int) $_POST["fiebreC"]);
                     }
+                    //Obtenemos la variable dolor de cabeza y checamos si existe la variable cantidad de dolor de cabeza en el contexto adecuado
                     $cabeza = ((int) $_POST["cabeza"]);
                     $cabezaC = 0;
-                    if(isset($_POST["cabezaC"])){
+                    if(isset($_POST["cabezaC"]) && $_POST["cabeza"] != "0"){
                         $cabezaC = ((int) $_POST["cabezaC"]);
                     }
+                    //Obtenemos la variable dificultad para respirar y checamos si existe la variable cantidad de dificultad para respirar en el contexto adecuado
                     $respirar = ((int) $_POST["respirar"]);
                     $respirarC = 0;
-                    if(isset($_POST["respirarC"])){
+                    if(isset($_POST["respirarC"]) && $_POST["respirar"] != "0"){
                         $respirarC = ((int) $_POST["respirarC"]);
                     }
+                    //Obtenemos la variable dolor de huesos y checamos si existe la variable cantidad de dolor de huesos en el contexto adecuado
                     $hueso = ((int) $_POST["hueso"]);
                     $huesoC = 0;
-                    if(isset($_POST["huesoC"])){
+                    if(isset($_POST["huesoC"]) && $_POST["hueso"] != "0"){
                         $huesoC = ((int) $_POST["huesoC"]);
                     }
+                    //Obtenemos la variable cansancio y checamos si existe la variable cantidad de cansancio en el contexto adecuado
                     $cansancio = ((int) $_POST["cansancio"]);
                     $cansancioC = 0;
-                    if(isset($_POST["cansancioC"])){
+                    if(isset($_POST["cansancioC"]) && $_POST["cansancio"] != "0"){
                         $cansancioC = ((int) $_POST["cansancioC"]);
                     }
+                    //Obtenemos la variable flujo nasal y checamos si existe la variable cantidad de flujo nasal en el contexto adecuado
                     $flujo = ((int) $_POST["flujo"]);
                     $flujoC = 0;
-                    if(isset($_POST["flujoC"])){
+                    if(isset($_POST["flujoC"]) && $_POST["flujo"] != "0"){
                         $flujoC = ((int) $_POST["flujoC"]);
                     }
+                    //Obtenemos la variable alergia
                     $alergia = ((int) $_POST["alergia"]);
                     $fkUsuarios = ((int) $resultado["pkUsuarios"]);
                     $true = true;
 
+                    // Ingresamos las variables al statement y ejecutamos
                     $stmt->bind_param("iiiiiiiiiiiiisisbs",$fiebre,$fiebreC,$cabeza,$cabezaC,$respirar,$respirarC,$hueso,$huesoC,$cansancio,$cansancioC,$flujo,$flujoC, $alergia, $tipo_alergia, $fkUsuarios, $current_date, $true, $tipo_consulta);
                     $exito = $stmt->execute();
 
+                    // Checamos si el ingreso fue exitoso
                     if($exito){
                         $ingreso='Ingreso exitoso';
                     }
                 }else{
+                    //Indicamos que el usuario no pudo ser creado en la base de datos
                     $error = "Los datos ingresados son erróneos o ya existen en la base de datos";
                     $tipo_consulta = '';    
                 }
-                //}
 
-                //}
             }catch(Exception $err){
                 $ingreso = $err->getMessage();
                 $error = "Los datos ingresados son erróneos o ya existen en la base de datos";
@@ -168,10 +187,13 @@
 <body>
     <?php
         if($error != ''){
+            //Si existe mensaje de error lo mostramos con un alert
             echo '<script>alert("'.$error.'")</script>'; 
         }else if($tipo_consulta != '' && $tipo_consulta != 'no'){
+            //Indicamos de que forma fue ingresado el usuario a la base de datos (CE/Urgencias)
             echo '<script>alert("El paciente fue ingresado con exito a '.$tipo_consulta.'")</script>'; 
         }else if($tipo_consulta == 'no'){
+            //Indicamos que el paciente está sano según la encuesta
             echo '<script>alert("El paciente está sano y no fue ingresado al sistema")</script>'; 
         }
     ?>  
@@ -180,7 +202,7 @@
     <!-- AQUI VA EL NAV -->
 
         <?php
-            include ("navigation.php");
+            require ("navigation.php");
         ?>
         <div id="page-wrapper" class="gray-bg">
         <div class="row border-bottom">
@@ -511,7 +533,7 @@
 
                                 <h1>Terminar</h1>
                                 <fieldset>
-                                    <h2>Registro exitoso</h2>
+                                    <h2>¿Acepta los términos y condiciones?</h2>
                                     <input id="acceptTerms" name="acceptTerms" type="checkbox" class="required"> <label for="acceptTerms">Lorem ipsum dolor sit amet consectetur adipisicing elit. Facilis quos voluptatibus at quam sed a, qui laudantium, dolorum iure cumque iusto delectus cupiditate suscipit nemo quae, libero cum tempore ut.</label>
                                 </fieldset>
                             </form>

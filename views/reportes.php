@@ -1,9 +1,10 @@
 <?php
 
+    // Indicamos que requerimos la clase de base de datos
     require ("../libs/Database.php");
-
+    session_start();
     if($_SERVER["REQUEST_METHOD"] == "POST"){
-        ///Validar que el TIMEZONE sea -6, si no es así al publicar, restar las horas o cambiar el timezone
+        ///Obtenemos la fecha actual y le restamos 18 años
         $date = new DateTime('now');
         date_sub($date,date_interval_create_from_date_string("18 years"));
 
@@ -12,6 +13,7 @@
         $menorEdad = $date;
         $comparacionMenor = $menorEdad;
 
+        //Obtenemos la fecha actual y le restamos 65 años
         $date = new DateTime('now');
         date_sub($date,date_interval_create_from_date_string("65 years"));
 
@@ -22,71 +24,92 @@
 
         $matriz = array();
 
+        //Revisamos que exista un tipo de consulta
         if(isset($_POST["consulttype"])){
             $tipo = trim($_POST["consulttype"]);
         }
         try{
+            //Creamos la conexion a la base de datos
             $instancia = Database::getInstance();
             $conexion = $instancia->getConnection();
+            //Revisamos si el tipo de consulta es demografico
             if($tipo == "1"){
                 $tipo_consulta = "demo";
                 $genero = "";
+                //Obtenemos el genero seleccionado
                 if(isset($_POST["genero"])){
                     $genero = $_POST["genero"];
                 }
                 $edad = "";
+                //Obtenemos el intervalo de edad seleccionado
                 if(isset($_POST["edad"])){
                     $edad = $_POST["edad"];    
                 }
                 $sql = "";
+                //Si se eligio un genero realizaremos la query basado en el genero
                 if($genero != ""){
-                    //SELECT u.* FROM usuarios as u
+                    //Query para obtencion de todos los usuarios que cumplan con el parametro de genero seleccionado
                     $sql = "SELECT nombre, fecha_nacimiento, direccion_calle, telefono, ocupacion, genero, rfc, correo FROM usuarios as u JOIN perfilesUsuarios as p on u.pkUsuarios = p.fkUsuarios where u.genero = ? and p.fkPerfiles = 3";
+                    //Preparamos el statement
                     $stmt = $conexion->prepare($sql);
+                    //Agregamos variables al statement
                     $stmt->bind_param("s",$genero);
-                }else{
+                }else{ // Si no se eligio un genero obtenemos todos los usuarios para su posterior clasificacion
                     $sql = "SELECT nombre, fecha_nacimiento, direccion_calle, telefono, ocupacion, genero, rfc, correo FROM usuarios as u JOIN perfilesUsuarios as p on u.pkUsuarios = p.fkUsuarios where p.fkPerfiles = 3";
+                    //Preparamos el statement
                     $stmt = $conexion->prepare($sql);
                 }
+                //Ejecutamos el statement
                 $exito = $stmt->execute();
 
+                //Chequemos no haya muerto el proceso
                 if($exito){
+                    //Obtenemos los resultados
                     $usuarios = $stmt->get_result();
 
+                    //Si hay resultados
                     if($usuarios != null){
+                        //Obtenemos cada una de las filas
                         while($row = $usuarios -> fetch_assoc()){
                             $resultado = array();
+                            //Iteramos las filas con cada tupla (columna, valor)
                             foreach($row as $cname => $cvalue){
-                                //print "$cname: $cvalue\t";
+                                //Guardamos en el arreglo con indice nombre de columna
                                 $resultado[$cname] = $cvalue;
                             }
+                            //Guardamos el arreglo en la matriz
                             array_push($matriz,$resultado);
                         }
                     }
                 }
 
                 $matriz2 = array();
+                //Iteramos la matriz
                 foreach($matriz as $valor){
-
+                    //Obtenemos la fecha de naciemiento del paciente
                     $fecha_nacimiento = new DateTime($valor["fecha_nacimiento"]);
-                    if($edad == "0"){
+                    if($edad == "0"){ //Revisamos si se busco que fuera menor de edad
                         if($comparacionMenor < $fecha_nacimiento){
+                            //Si si y la edad se cumple se ingresa a la nueva matriz
                             array_push($matriz2,$valor);
                         }
-                    }else if($edad == "1"){
+                    }else if($edad == "1"){ //Revisamos si se busco a la poblacion economicamente activa
                         if($comparacionMenor > $fecha_nacimiento && $comparacionTercera < $fecha_nacimiento){
+                            //Si si y la edad se cumple se ingresa a la nueva matriz
                             array_push($matriz2,$valor);
                         }
-                    }else if($edad == "2"){
+                    }else if($edad == "2"){ //Revisamos si se busco a la poblacion de la tercera edad
                         if($comparacionTercera > $fecha_nacimiento){
+                            //Si si y la edad se cumple se ingresa a la nueva matriz
                             array_push($matriz2,$valor);
                         }
                     }
                 }
 
+                //Si si hay edad
                 if($edad != ""){
                     $matriz = array();
-
+                    //Ingresamos los valores de la matriz filtrada a la matriz original
                     foreach($matriz2 as $valor){
                         array_push($matriz,$valor);
                     }
@@ -95,24 +118,32 @@
     
 
             }else if($tipo == "0"){
+                // Obtenemos el tipo de consulta
                 $tipo_consulta = "consulta";
                 $consulta = trim($_POST["consulta"]);
-                      //SELECT * FROM usuarios AS u JOIN formulario AS f on u.pkUsuarios = f.fkUsuarios where f.tipo_consulta = "urgencias";
+                
+                //Hacemos el query para obtener a los usuarios por su tipo de consulta
                 $sql = "SELECT nombre, fecha_nacimiento, direccion_calle, telefono, ocupacion, genero, rfc, correo FROM usuarios AS u JOIN formulario AS f on u.pkUsuarios = f.fkUsuarios JOIN perfilesUsuarios as p on u.pkUsuarios = p.fkUsuarios where f.tipo_consulta = ? and p.fkPerfiles = 3";
+                //Preparamos la query e ingresamos la variable
                 $stmt = $conexion->prepare($sql);
                 $stmt->bind_param("s",$consulta);
+                //Ejecutamos
                 $exito = $stmt->execute();
 
-                if($exito){
+                if($exito){ //Si obtenemos los valores de la tabla
                     $usuarios = $stmt->get_result();
 
+                    //Si si hay usuarios
                     if($usuarios != null){
+                        //Obtenemos las filas de la consulta
                         while($row = $usuarios -> fetch_assoc()){
                             $resultado = array();
+                            //Iteramos las filas por tupla (columna, valor)
                             foreach($row as $cname => $cvalue){
-                                //print "$cname: $cvalue\t";
+                                //Guardamos en el arreglo con indice igual a nombre de columna
                                 $resultado[$cname] = $cvalue;
                             }
+                            //Agregamos a matriz
                             array_push($matriz,$resultado);
                         }
                     }
@@ -149,7 +180,7 @@
         </div>
             <div class="row wrapper border-bottom white-bg page-heading">
                 
-                <h2>Registro</h2>
+                <h2>Reportes</h2>
                 </div>
                 
                 <form class="m-t" role="form" action="<?php echo htmlspecialchars($_SERVER["PHP_SELF"]); ?>" method="POST">
@@ -287,11 +318,13 @@
                     </thead>
                     <tbody>
                         <?php   
+                            // Revisamos si hay valores de la matriz
                             if(!empty($matriz))
                             {
-                                foreach($matriz as $fila){
+                                foreach($matriz as $fila){ //Iteramos cada una de las filas de la matriz
                                     echo "<tr>";
-                                    foreach($fila as $value){
+                                    foreach($fila as $value){ //Iteramos los valores de cada fila
+                                        //Revisamos si tratamos de genero para imprimir el nombre
                                         if($value == "H"){
                                             echo "<td>Hombre</td>";    
                                         } else if($value == "M"){
@@ -299,7 +332,7 @@
                                         }else if($value == "O"){
                                             echo "<td>Otro</td>";    
                                         }
-                                        else{
+                                        else{ // Imprimimos el valor dentro de una tabla
                                             echo "<td>".$value."</td>";
                                         }
                                     }

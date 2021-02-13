@@ -1,6 +1,4 @@
 <?php
-    session_start();
-
     if(!isset($_SESSION["loggedin"])){
         header("location: ../index.php");
     }
@@ -49,7 +47,7 @@
                     echo "<li>";
                         echo "<a href='./logOut.php'><i class='fa fa-sign-out'></i> <span class='nav-label'>Log Out</span></a>";
                     echo "</li>";
-                }else if($_SESSION["perfil"] == "ambos"){
+                }else if($_SESSION["perfil"] == 3){
                     echo "<li>";
                         echo "<a href='menuprincipal.php'><i class='fa fa-pencil-square-o'></i> <span class='nav-label'>Registro</span></a>";
                     echo "</li>";

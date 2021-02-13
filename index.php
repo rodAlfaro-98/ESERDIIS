@@ -2,22 +2,25 @@
 
 session_start();
 
+//Indicamos que requerimos de la clase encargada de la conexión a la base de datos
 require ("./libs/Database.php");
 
+//Inicializamos a nulo las variables de login y de log del sistema
 $email = $rfc = '';
 $username_err = $password_err = '';
 $correo_erroneo = $rfc_erroneo = $database_exception = '';
 
-$_SESSION["correo_erroneo"] = null;
 
 try{
 
+    //Creamos una instancia del objeto Database y obtenemos su conexion
     $instancia = Database::getInstance();
     $conexion = $instancia->getConnection();
 
+    //Revisamos si la variable global server tiene un metodo request de tipo post activo tras darle clic en enviar
     if($_SERVER["REQUEST_METHOD"] == "POST"){
 
-        // Check if username is empty
+        // Checamos si el usuario esta vacio
         if(empty(trim($_POST["email"]))){
             $username_err = "Favor de ingresar su correo.";
         } else{
@@ -25,70 +28,86 @@ try{
         }
 
     
-        // Check if password is empty
+        // Checamos si se ingreso un rfc
         if(empty(trim($_POST["rfc"]))){
             $password_err = "Favor de ingresar su rfc.";
         } else{
             $rfc = trim($_POST["rfc"]);
         }
 
+        //Caso en el que se ingresaron ambos
         if(empty($username_err) && empty($password_err)){
-            // Prepare a select statement
+            
+            //Creamos un sql statement encargado de obtener el usuario con el correo ingresado
             $sql = "SELECT pkUsuarios, nombre, correo, rfc FROM usuarios WHERE correo = ?";
+            //Preparamos el statement para recibir variables
             $stmt = $conexion->prepare($sql);
+            //Agregamos al statement una var de tipo string correspondiente al correo
             $stmt->bind_param("s",$email);
+            //Ejecutamos la query y obtenemos el resultado
             $stmt->execute();
             $usuario = $stmt->get_result();
 
             $resultado = array();
 
+            //Iteramos cada una de las filas del resultado haciendole fetch_assoc() a cada una
             while($row = $usuario -> fetch_assoc()){
+                //Iteramos la fila basandonos en su par nombre columna, valor columna
                 foreach($row as $cname => $cvalue){
-                    //print "$cname: $cvalue\t";
+                    //Guardamos los valores siendo el index el nombre de la columna y el valor el valor de la columna
                     $resultado[$cname] = $cvalue;
                 }
             }
 
+            //Si no obtuvimos resultados lo indicamos
             if(empty($resultado)){
                 $correo_erroneo = 'Correo ingresado no existe en la base de datos';
-                $_SESSION["correo_erroneo"] = $correo_erroneo;
             }else{
+                //rfc a upper case
+                $rfc = strtoupper($rfc);
+                //Comparamos el rfc del correo con el rfc ingresado
                 if($resultado["rfc"] == $rfc){
 
+                    //Buscamos obtener el perfil del usuario ingresado con otra query
                     $sql = "SELECT fkPerfiles FROM perfilesUsuarios WHERE fkUsuarios = ?";
+                    //Preparamos el statement y le agregamos la variable de la llave de usuario
                     $stmt = $conexion->prepare($sql);
                     $stmt->bind_param("s",$resultado["pkUsuarios"]);
+                    //Ejectuamos y obtenemos el resultado
                     $res=$stmt->execute();
                     $perfil = $stmt->get_result();
 
-
+                    //Obtenemos las filas correspondientes a cada registro
                     $num_rows = 0;
                     while($row = $perfil -> fetch_assoc()){
+                        //Iteramos las filas como tupla cname,cvalue
                         foreach($row as $cname => $cvalue){
+                            //Guardamos en arreglo
                             $resultado[$cname] = $cvalue;
                             $num_rows++;
                         }
                     }
                         
-                    // Store data in session variables
+                    //Creamos las variables de sesión donde indicamos que el usuario ya está loggeado y los datos del usuario
                     $_SESSION["loggedin"] = true;
                     $_SESSION["id"] = $resultado['pkUsuarios'];
                     $_SESSION["nombreUsuario"] = $resultado['nombre'];                            
                     $_SESSION["correo"] = $email;
                     
-                    // Redirect user to welcome page
-
                     
+
+                    //Revisamos si el usuario tiene mas de un perfil en el programa y lo redireccionamos a registro
                     if($num_rows >= 2){
-                        $_SESSION["perfil"]="ambos";
-                        echo $num_rows++;
+                        $_SESSION["perfil"]=3;
+                        
                         header("location: views/menuprincipal.php");
-                    }
+                    } //Checamos si es medico
                     else if($resultado["fkPerfiles"] == 1){
                         $_SESSION["perfil"] = 1;
                         header("location: views/menuprincipal.php");
                         echo $num_rows++;
-                    } else if($resultado["fkPerfiles"] == 2){
+                    }  //Checamos si es supervisor
+                    else if($resultado["fkPerfiles"] == 2){
                         $_SESSION["perfil"] = 2;
                         header("location: views/reportes.php");
                     }
@@ -130,13 +149,17 @@ try{
 
     <div>
         <?php
+            //Si existe el error de correo
             if(!empty($correo_erroneo)){
+                //Generamos un alert de JS diciendo que el correo es erroneo
                 echo '<script>alert("'.$correo_erroneo.'")</script>'; 
                 $correo_erroneo='';
             }else if(!empty($rfc_erroneo)){
+                //Generamos un alert de JS diciendo que el rfc es erroneo
                 echo '<script>alert("'.$rfc_erroneo.'")</script>'; 
                 $rfc_erroneo='';
             }else if(!empty($database_exception)){
+                //Generamos un alert de JS diciendo que fallo la base de datos
                 echo '<script>alert("'.$database_exception.'")</script>'; 
                 $database_exception='';
             }
@@ -150,7 +173,7 @@ try{
             </div>
             <h3>Bienvenido</h3>
             <p>Sistema de registro de pacientes con sospecha de COVID-19.
-                <!--Continually expanded and constantly improved Inspinia Admin Them (IN+)-->
+                
             </p>
             <form class="m-t" role="form" action="<?php echo htmlspecialchars($_SERVER["PHP_SELF"]); ?>" method="POST">
                 <div class="form-group">
